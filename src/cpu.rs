@@ -41,24 +41,88 @@ impl Cpu {
 
         // match first nibble of opcode for instruction
         match (self.opcode & 0xf000) {
-            0x000 => self.instr_0xxx(),
-            0x100 => self.instr_1xxx(),
-            0x200 => self.instr_2xxx(),
-            0x300 => self.instr_3xxx(),
-            0x400 => self.instr_4xxx(),
-            0x500 => self.instr_5xxx(),
-            0x600 => self.instr_6xxx(),
-            0x700 => self.instr_7xxx(),
-            0x800 => self.instr_8xxx(),
-            0x900 => self.instr_9xxx(),
-            0xa00 => self.instr_axxx(),
-            0xb00 => self.instr_bxxx(),
-            0xc00 => self.instr_cxxx(),
-            0xd00 => self.instr_dxxx(),
-            0xe00 => self.instr_exxx(),
-            0xf00 => self.instr_fxxx(),
+            0x000 => self.instr_0(),
+            0x100 => self.instr_1(),
+            0x200 => self.instr_2(),
+            0x300 => self.instr_3(),
+            0x400 => self.instr_4(),
+            0x500 => self.instr_5(),
+            0x600 => self.instr_6(),
+            0x700 => self.instr_7(),
+            0x800 => self.instr_8(),
+            0x900 => self.instr_9(),
+            0xa00 => self.instr_a(),
+            0xb00 => self.instr_b(),
+            0xc00 => self.instr_c(),
+            0xd00 => self.instr_d(),
+            0xe00 => self.instr_e(),
+            0xf00 => self.instr_f(),
             _ => self.nop()
         }
+    }
+
+    fn instr_0(&mut self) {
+
+    }
+
+    fn instr_1(&mut self) {
+
+    }
+
+    fn instr_2(&mut self) {
+
+    }
+
+    fn instr_3(&mut self) {
+
+    }
+
+    fn instr_4(&mut self) {
+
+    }
+
+    fn instr_5(&mut self) {
+
+    }
+
+    fn instr_6(&mut self) {
+
+    }
+
+    fn instr_7(&mut self) {
+
+    }
+
+    fn instr_8(&mut self) {
+
+    }
+
+    fn instr_9(&mut self) {
+
+    }
+
+    fn instr_a(&mut self) {
+
+    }
+
+    fn instr_b(&mut self) {
+
+    }
+
+    fn instr_c(&mut self) {
+
+    }
+
+    fn instr_d(&mut self) {
+
+    }
+
+    fn instr_e(&mut self) {
+
+    }
+
+    fn instr_f(&mut self) {
+
     }
 
     // nop if instruction isn't valid
