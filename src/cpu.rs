@@ -11,7 +11,7 @@ pub struct Cpu {
 
 impl Cpu {
     fn new () -> Cpu {
-        Cpu {
+        let mut cpu = Cpu {
             i: 0x200,
             v: [0; 16],
             pc: 0x200,
@@ -21,6 +21,12 @@ impl Cpu {
             delay_timer: 0,
             opcode: 0
         }
+
+        for i in 0..80 {
+            cpu.mem[i] = fontset[i];
+        }
+
+        cpu
     }
 
     fn load_game(&mut self, game: Vec<u8>) {
@@ -58,6 +64,18 @@ impl Cpu {
             0xe00 => self.instr_e(),
             0xf00 => self.instr_f(),
             _ => self.nop()
+        }
+
+        if self.delay_timer > 0 {
+            self.delay_timer -= 1;
+        }
+
+        if self.sound_timer > 0 {
+            if (sound_timer == 1) {
+                println!("BEEP!");
+            }
+
+            self.sound_timer -= 1;
         }
     }
 
