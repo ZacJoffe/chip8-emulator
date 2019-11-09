@@ -1,3 +1,7 @@
+extern crate rand;
+
+use rand::Rng;
+
 pub struct Cpu {
     i: u16,
     v: [u8; 16],
@@ -120,19 +124,31 @@ impl Cpu {
     }
 
     fn instr_9(&mut self) {
+        let x = ((self.opcode & 0x0f00) >> 8) as usize;
+        let y = ((self.opcode & 0x00f0) >> 4) as usize;
 
+        if self.v[x] != self.v[y] {
+            self.pc += 4;
+        } else {
+            self.pc += 2;
+        }
     }
 
     fn instr_a(&mut self) {
-
+        self.i = self.opcode & 0x0fff;
+        self.pc += 2;
     }
 
     fn instr_b(&mut self) {
-
+        self.pc = (self.v[0] as u16) + (self.opcode & 0x0fff);
     }
 
     fn instr_c(&mut self) {
+        let index = (self.opcode & 0x0f00) as usize;
+        let random_num: u8 = rand::thread_rng().gen();
+        self.v[index] = random_num & ((self.opcode & 0x00ff) as u8);
 
+        self.pc += 2;
     }
 
     fn instr_d(&mut self) {
