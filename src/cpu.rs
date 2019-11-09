@@ -2,7 +2,8 @@ pub struct Cpu {
     i: u16,
     v: [u8; 16],
     pc: u16,
-    sp: u8,
+    sp: u16,
+    stack: [u16; 16],
     mem: [u8; 4096],
     sound_timer: u8,
     delay_timer: u8,
@@ -10,43 +11,44 @@ pub struct Cpu {
 }
 
 impl Cpu {
-    fn new () -> Cpu {
+    pub fn new () -> Cpu {
         let mut cpu = Cpu {
             i: 0x200,
             v: [0; 16],
             pc: 0x200,
             sp: 0,
+            stack: [0; 16],
             mem: [0; 4096],
             sound_timer: 0,
             delay_timer: 0,
             opcode: 0
-        }
+        };
 
         for i in 0..80 {
-            cpu.mem[i] = fontset[i];
+            cpu.mem[i] = FONTSET[i];
         }
 
         cpu
     }
 
     fn load_game(&mut self, game: Vec<u8>) {
-        let data = vec![0; 0x200];
+        let mut data = vec![0; 0x200];
         // load data vector with program
         for byte in game {
             data.push(byte);
         }
 
         for (i, &byte) in data.iter().enumerate() {
-            self.memory[i] = byte;
+            self.mem[i] = byte;
         }
     }
 
     fn emulate_cycle(&mut self) {
         // fetch
-        self.opcode = self.mem[self.pc] << 8 | self.mem[self.pc + 1];
+        self.opcode = (self.mem[self.pc as usize] as u16) << 8 | (self.mem[(self.pc as usize) + 1]) as u16;
 
         // match first nibble of opcode for instruction
-        match (self.opcode & 0xf000) {
+        match self.opcode & 0xf000 {
             0x000 => self.instr_0(),
             0x100 => self.instr_1(),
             0x200 => self.instr_2(),
@@ -71,7 +73,7 @@ impl Cpu {
         }
 
         if self.sound_timer > 0 {
-            if (sound_timer == 1) {
+            if self.sound_timer == 1 {
                 println!("BEEP!");
             }
 
@@ -88,7 +90,9 @@ impl Cpu {
     }
 
     fn instr_2(&mut self) {
-
+        self.stack[self.sp as usize] = self.pc;
+        self.sp += 1;
+        self.pc = self.opcode & 0x0fff;
     }
 
     fn instr_3(&mut self) {
@@ -149,7 +153,7 @@ impl Cpu {
     }
 }
 
-const fontset: [u8; 80] = [
+const FONTSET: [u8; 80] = [
     0xF0, 0x90, 0x90, 0x90, 0xF0, // 0
     0x20, 0x60, 0x20, 0x20, 0x70, // 1
     0xF0, 0x10, 0xF0, 0x80, 0xF0, // 2
