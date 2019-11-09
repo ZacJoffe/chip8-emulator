@@ -135,7 +135,61 @@ impl Cpu {
 
     fn instr_8(&mut self) {
         match self.opcode & 0x000f {
+            0 => {
+                self.v[self.opcode_x()] = self.v[self.opcode_y()];
+            }
+            1 => {
+                self.v[self.opcode_x()] = self.v[self.opcode_x()] | self.v[self.opcode_y()];
+            }
+            2 => {
+                self.v[self.opcode_x()] = self.v[self.opcode_x()] & self.v[self.opcode_y()];
+            }
+            3 => {
+                self.v[self.opcode_x()] = self.v[self.opcode_x()] ^ self.v[self.opcode_y()];
+            }
+            4 => {
+                // check for overflow/carry
+                if self.v[self.opcode_x()] > 0xff - self.v[self.opcode_y()] {
+                    self.v[0xf] = 1;
+                } else {
+                    self.v[0xf] = 0;
+                }
 
+                self.v[self.opcode_x()] += self.v[self.opcode_y()];
+            }
+            5 => {
+                // check for underflow/borrow
+                if self.v[self.opcode_y()] > self.v[self.opcode_x()] {
+                    self.v[0xf] = 0;
+                } else {
+                    self.v[0xf] = 1;
+                }
+
+                self.v[self.opcode_x()] -= self.v[self.opcode_y()];
+            }
+            6 => {
+                // store the lsb of v[x] into v[0xf] before shifting
+                self.v[0xf] = self.v[self.opcode_x()] & 0x1;
+                self.v[self.opcode_x()] >>= 1;
+            }
+            7 => {
+                // check for underflow/borrow
+                if self.v[self.opcode_x()] > self.v[self.opcode_y()] {
+                    self.v[0xf] = 0;
+                } else {
+                    self.v[0xf] = 1;
+                }
+
+                self.v[self.opcode_x()] = self.v[self.opcode_y()] - self.v[self.opcode_x()];
+            }
+            0xe => {
+                // store the msb of v[x] into v[0xf] before shifting
+                self.v[0xf] = self.v[self.opcode_x()] >> 7;
+                self.v[self.opcode_x()] <<= 1;
+            }
+            _ => {
+                self.nop()
+            }
         }
 
         self.pc += 2;
