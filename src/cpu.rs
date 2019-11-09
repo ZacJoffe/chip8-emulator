@@ -124,10 +124,10 @@ impl Cpu {
     }
 
     fn instr_9(&mut self) {
-        let x = ((self.opcode & 0x0f00) >> 8) as usize;
-        let y = ((self.opcode & 0x00f0) >> 4) as usize;
+        // let x = ((self.opcode & 0x0f00) >> 8) as usize;
+        // let y = ((self.opcode & 0x00f0) >> 4) as usize;
 
-        if self.v[x] != self.v[y] {
+        if self.v[self.opcode_x()] != self.v[self.opcode_y()] {
             self.pc += 4;
         } else {
             self.pc += 2;
@@ -166,6 +166,16 @@ impl Cpu {
     // nop if instruction isn't valid
     fn nop(&self) {
         println!("Nop instruction");
+    }
+
+    // get x index from opcode
+    fn opcode_x(&self) -> usize {
+        ((self.opcode & 0x0f00) >> 8) as usize
+    }
+
+    // get y index from opcode
+    fn opcode_y(&self) -> usize {
+        ((self.opcode & 0x00f0) >> 4) as usize
     }
 }
 
