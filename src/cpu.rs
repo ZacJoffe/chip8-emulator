@@ -90,13 +90,13 @@ impl Cpu {
     }
 
     fn instr_1(&mut self) {
-
+        self.pc = self.opcode_nnn();
     }
 
     fn instr_2(&mut self) {
         self.stack[self.sp as usize] = self.pc;
         self.sp += 1;
-        self.pc = self.opcode & 0x0fff;
+        self.pc = self.opcode_nnn();
     }
 
     fn instr_3(&mut self) {
@@ -135,18 +135,17 @@ impl Cpu {
     }
 
     fn instr_a(&mut self) {
-        self.i = self.opcode & 0x0fff;
+        self.i = self.opcode_nnn();
         self.pc += 2;
     }
 
     fn instr_b(&mut self) {
-        self.pc = (self.v[0] as u16) + (self.opcode & 0x0fff);
+        self.pc = (self.v[0] as u16) + self.opcode_nnn();
     }
 
     fn instr_c(&mut self) {
-        let index = (self.opcode & 0x0f00) as usize;
         let random_num: u8 = rand::thread_rng().gen();
-        self.v[index] = random_num & ((self.opcode & 0x00ff) as u8);
+        self.v[self.opcode_x()] = random_num & self.opcode_nn();
 
         self.pc += 2;
     }
@@ -176,6 +175,18 @@ impl Cpu {
     // get y index from opcode
     fn opcode_y(&self) -> usize {
         ((self.opcode & 0x00f0) >> 4) as usize
+    }
+
+    fn opcode_n(&self) -> u8 {
+        (self.opcode & 0x000f) as u8
+    }
+
+    fn opcode_nn(&self) -> u8 {
+        (self.opcode & 0x00ff) as u8
+    }
+
+    fn opcode_nnn(&self) -> u16 {
+        (self.opcode & 0x0fff) as u16
     }
 }
 
