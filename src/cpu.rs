@@ -100,27 +100,45 @@ impl Cpu {
     }
 
     fn instr_3(&mut self) {
-
+        if self.v[self.opcode_x()] == self.opcode_nn() {
+            self.pc += 4;
+        } else {
+            self.pc += 2;
+        }
     }
 
     fn instr_4(&mut self) {
-
+        if self.v[self.opcode_x()] != self.opcode_nn() {
+            self.pc += 4;
+        } else {
+            self.pc += 2;
+        }
     }
 
     fn instr_5(&mut self) {
-
+        if self.v[self.opcode_x()] == self.v[self.opcode_y()] {
+            self.pc += 4;
+        } else {
+            self.pc += 2;
+        }
     }
 
     fn instr_6(&mut self) {
-
+        self.v[self.opcode_x()] = self.opcode_nn();
+        self.pc += 2;
     }
 
     fn instr_7(&mut self) {
-
+        self.v[self.opcode_x()] += self.opcode_nn();
+        self.pc += 2;
     }
 
     fn instr_8(&mut self) {
+        match self.opcode & 0x000f {
 
+        }
+
+        self.pc += 2;
     }
 
     fn instr_9(&mut self) {
