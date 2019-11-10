@@ -14,7 +14,7 @@ pub struct Cpu {
     sound_timer: u8,
     delay_timer: u8,
     opcode: u16,
-    keypad: Keypad
+    key: Keypad
 }
 
 impl Cpu {
@@ -29,7 +29,7 @@ impl Cpu {
             sound_timer: 0,
             delay_timer: 0,
             opcode: 0,
-            keypad: Keypad::new()
+            key: Keypad::new()
         };
 
         for i in 0..80 {
@@ -233,7 +233,26 @@ impl Cpu {
     }
 
     fn instr_e(&mut self) {
-
+        match (self.opcode & 0x00ff) as u8 {
+            0x9e => {
+                if self.key.is_pressed(self.v[self.opcode_x()] as usize) {
+                    self.pc += 4;
+                } else {
+                    self.pc += 2;
+                }
+            }
+            0xa1 => {
+                if !self.key.is_pressed(self.v[self.opcode_x()] as usize) {
+                    self.pc += 4;
+                } else {
+                    self.pc += 2;
+                }
+            }
+            _ => {
+                self.nop();
+                self.pc += 2;
+            }
+        }
     }
 
     fn instr_f(&mut self) {

@@ -10,4 +10,8 @@ impl Keypad {
             key: [false; 16]
         }
     }
+
+    pub fn is_pressed(&self, i: usize) -> bool {
+        self.key[i]
+    }
 }
