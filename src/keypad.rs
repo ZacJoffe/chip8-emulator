@@ -1,4 +1,4 @@
-// use sdl2::event::Key;
+use sdl2::keyboard::Keycode;
 
 pub struct Keypad {
     key: [bool; 16]

@@ -1,7 +1,8 @@
 extern crate rand;
 
-use keypad::Keypad;
 use rand::Rng;
+
+use crate::keypad::Keypad;
 
 pub struct Cpu {
     i: u16,
