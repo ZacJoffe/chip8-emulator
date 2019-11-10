@@ -216,7 +216,9 @@ impl Cpu {
     }
 
     fn instr_c(&mut self) {
-        let random_num: u8 = rand::thread_rng().gen();
+        // let random_num: u8 = rand::thread_rng().gen();
+        let mut rng = rand::thread_rng();
+        let random_num: u8 = rng.gen();
         self.v[self.opcode_x()] = random_num & self.opcode_nn();
 
         self.pc += 2;

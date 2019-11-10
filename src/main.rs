@@ -1,4 +1,3 @@
-
 use cpu::Cpu;
 
 mod cpu;
