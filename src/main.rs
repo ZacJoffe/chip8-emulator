@@ -1,3 +1,5 @@
+extern crate sdl2;
+
 use cpu::Cpu;
 
 mod cpu;

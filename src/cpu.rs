@@ -1,5 +1,6 @@
 extern crate rand;
 
+use keypad::Keypad;
 use rand::Rng;
 
 pub struct Cpu {
@@ -11,11 +12,12 @@ pub struct Cpu {
     mem: [u8; 4096],
     sound_timer: u8,
     delay_timer: u8,
-    opcode: u16
+    opcode: u16,
+    keypad: Keypad
 }
 
 impl Cpu {
-    pub fn new () -> Cpu {
+    pub fn new() -> Cpu {
         let mut cpu = Cpu {
             i: 0x200,
             v: [0; 16],
@@ -25,7 +27,8 @@ impl Cpu {
             mem: [0; 4096],
             sound_timer: 0,
             delay_timer: 0,
-            opcode: 0
+            opcode: 0,
+            keypad: Keypad::new()
         };
 
         for i in 0..80 {
