@@ -25,22 +25,22 @@ impl<'a> Graphics<'a> {
         self.draw_flag = true;
     }
 
-    pub fn update(&mut self, x: usize, y: usize, height: u8, i: u16, mem: [u8, 4096]) -> u8 {
+    pub fn update(&mut self, x: usize, y: usize, height: u8, i: u16, mem: [u8; 4096]) -> u8 {
         let mut pixel: u8;
 
         // return value
         let mut v15: u8 = 0;
 
-        for yline in range(0, height) {
-            pixel = mem[i + yline];
+        for yline in 0..height as usize {
+            pixel = mem[i as usize + yline];
 
-            for xline in range(0, 8) {
+            for xline in 0..8 as usize {
                 if pixel & (0x80 >> xline) != 0 {
-                    if self.gfx[(y + yline) % 32][(x + xline) % 64] == 1 {
+                    if self.gfx[y + yline % 32][x + xline % 64] == 1 {
                         v15 = 1;
                     }
 
-                    self.gfx[(y + yline) % 32][(x + xline) % 64] ^= 1;
+                    self.gfx[y + yline % 32][x + xline % 64] ^= 1;
                 }
             }
         }

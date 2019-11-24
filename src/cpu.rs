@@ -5,7 +5,7 @@ use rand::Rng;
 use crate::keypad::Keypad;
 use crate::graphics::Graphics;
 
-pub struct Cpu {
+pub struct Cpu<'a> {
     i: u16,
     v: [u8; 16],
     pc: u16,
@@ -16,11 +16,11 @@ pub struct Cpu {
     delay_timer: u8,
     opcode: u16,
     key: Keypad,
-    graphics: Graphics
+    graphics: Graphics<'a>
 }
 
-impl Cpu {
-    pub fn new() -> Cpu {
+impl<'a> Cpu<'a> {
+    pub fn new() -> Cpu<'a> {
         let mut cpu = Cpu {
             i: 0x200, v: [0; 16],
             pc: 0x200,
@@ -231,7 +231,13 @@ impl Cpu {
     }
 
     fn instr_d(&mut self) {
+        let x = self.opcode_x();
+        let y = self.opcode_y();
+        let n = self.opcode_n();
 
+        self.v[15] = self.graphics.update(x, y, n, self.i, self.mem);
+
+        self.pc += 2;
     }
 
     fn instr_e(&mut self) {
