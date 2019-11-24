@@ -1,14 +1,14 @@
 use sdl2::surface::Surface;
 use sdl2::pixels::PixelFormatEnum;
 
-pub struct Graphics {
-    gfx: [[u8; 64], 32], // represent graphics as a 2d array
-    surface: Surface,
+pub struct Graphics<'a> {
+    gfx: [[u8; 64]; 32], // represent graphics as a 2d array
+    surface: Surface<'a>,
     draw_flag: bool
 }
 
-impl Graphics {
-    pub fn new() -> Grapics {
+impl<'a> Graphics<'a> {
+    pub fn new() -> Graphics<'a> {
         Graphics {
             gfx: [[0; 64]; 32],
             surface: Surface::new(

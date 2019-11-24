@@ -3,6 +3,7 @@ extern crate rand;
 use rand::Rng;
 
 use crate::keypad::Keypad;
+use crate::graphics::Graphics;
 
 pub struct Cpu {
     i: u16,
@@ -14,14 +15,14 @@ pub struct Cpu {
     sound_timer: u8,
     delay_timer: u8,
     opcode: u16,
-    key: Keypad
+    key: Keypad,
+    graphics: Graphics
 }
 
 impl Cpu {
     pub fn new() -> Cpu {
         let mut cpu = Cpu {
-            i: 0x200,
-            v: [0; 16],
+            i: 0x200, v: [0; 16],
             pc: 0x200,
             sp: 0,
             stack: [0; 16],
@@ -29,7 +30,8 @@ impl Cpu {
             sound_timer: 0,
             delay_timer: 0,
             opcode: 0,
-            key: Keypad::new()
+            key: Keypad::new(),
+            graphics: Graphics::new()
         };
 
         for i in 0..80 {
