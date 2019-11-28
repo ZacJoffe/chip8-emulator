@@ -92,7 +92,20 @@ impl<'a> Cpu<'a> {
     }
 
     fn instr_0(&mut self) {
+        match self.opcode & 0x00f {
+            0 => {
+                self.graphics.clear();
+            }
+            0xe => {
+                self.sp -= 1;
+                self.pc = self.stack[self.sp as usize];
+            }
+            _ => {
+                self.nop();
+            }
+        }
 
+        self.pc += 2;
     }
 
     fn instr_1(&mut self) {
@@ -264,7 +277,55 @@ impl<'a> Cpu<'a> {
     }
 
     fn instr_f(&mut self) {
+        match (self.opcode & 0x00ff) as u8 {
+            0x07 => {
+                self.v[self.opcode_x()] = self.delay_timer;
+            }
+            0x0a => {
+                for i in 0..16 {
+                    if self.key.is_pressed(i as usize) {
+                        self.v[self.opcode_x()] = i;
+                        break;
+                    }
+                }
+            }
+            0x15 => {
+                self.delay_timer = self.v[self.opcode_x()];
+            }
+            0x18 => {
+                self.sound_timer = self.v[self.opcode_x()];
+            }
+            0x1e => {
+                self.i += self.v[self.opcode_x()] as u16;
+            }
+            0x29 => {
+                self.i = (self.v[self.opcode_x()] * 5).into();
+            }
+            0x33 => {
+                self.mem[self.i as usize] = self.v[((self.opcode & 0x0f00) >> 8) as usize] / 100;
+                self.mem[(self.i + 1) as usize] = (self.v[((self.opcode & 0x0f00) >> 8) as usize] / 10) % 10;
+                self.mem[(self.i + 2) as usize] = (self.v[((self.opcode & 0x0f00) >> 8) as usize] % 100) % 10;
+            }
+            0x55 => {
+                // reg dump into memory
+                for i in 0..(self.opcode_x() + 1) {
+                    self.mem[i + self.i as usize] = self.v[i];
+                }
 
+                self.i += self.opcode_x() as u16 + 1;
+            }
+            0x65 => {
+                // reg dump into memory
+                for i in 0..(self.opcode_x() + 1) {
+                    self.v[i] = self.mem[i + self.i as usize];
+                }
+
+                self.i += self.opcode_x() as u16 + 1;
+            }
+            _ => {}
+        }
+
+        self.pc += 2;
     }
 
     // nop if instruction isn't valid
