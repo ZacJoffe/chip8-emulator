@@ -41,7 +41,7 @@ impl<'a> Cpu<'a> {
         cpu
     }
 
-    fn load_game(&mut self, game: Vec<u8>) {
+    pub fn load_game(&mut self, game: Vec<u8>) {
         let mut data = vec![0; 0x200];
         // load data vector with program
         for byte in game {
@@ -207,7 +207,7 @@ impl<'a> Cpu<'a> {
                 self.v[self.opcode_x()] <<= 1;
             }
             _ => {
-                self.nop()
+                self.nop();
             }
         }
 
