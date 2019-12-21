@@ -10,6 +10,7 @@ use sdl2::event::Event;
 use sdl2::keyboard::Keycode;
 
 use std::time::Duration;
+use std::thread;
 
 mod cpu;
 mod keypad;
@@ -46,6 +47,54 @@ fn main() {
                     break 'running
                 },
                 Event::MouseMotion {..} => {},
+                Event::KeyDown { keycode: Some(Keycode::Num1), .. } => {
+
+                }
+                Event::KeyDown { keycode: Some(Keycode::Num2), .. } => {
+
+                }
+                Event::KeyDown { keycode: Some(Keycode::Num3), .. } => {
+
+                }
+                Event::KeyDown { keycode: Some(Keycode::Num4), .. } => {
+
+                }
+                Event::KeyDown { keycode: Some(Keycode::Q), .. } => {
+
+                }
+                Event::KeyDown { keycode: Some(Keycode::W), .. } => {
+
+                }
+                Event::KeyDown { keycode: Some(Keycode::E), .. } => {
+
+                }
+                Event::KeyDown { keycode: Some(Keycode::R), .. } => {
+
+                }
+                Event::KeyDown { keycode: Some(Keycode::A), .. } => {
+
+                }
+                Event::KeyDown { keycode: Some(Keycode::S), .. } => {
+
+                }
+                Event::KeyDown { keycode: Some(Keycode::D), .. } => {
+
+                }
+                Event::KeyDown { keycode: Some(Keycode::F), .. } => {
+
+                }
+                Event::KeyDown { keycode: Some(Keycode::Z), .. } => {
+
+                }
+                Event::KeyDown { keycode: Some(Keycode::X), .. } => {
+
+                }
+                Event::KeyDown { keycode: Some(Keycode::C), .. } => {
+
+                }
+                Event::KeyDown { keycode: Some(Keycode::V), .. } => {
+
+                }
                 e => {
                     println!("{:?}", e);
                 }
@@ -54,7 +103,8 @@ fn main() {
 
         canvas.clear();
         canvas.present();
-        ::std::thread::sleep(Duration::new(0, 1_000_000_000u32 / 30));
+        // ::std::thread::sleep(Duration::new(0, 1_000_000_000u32 / 30));
+        thread::sleep(Duration::new(0, 1_000_000_000u32 / 30));
         // The rest of the game loop goes here...
     }
 
