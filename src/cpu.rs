@@ -15,7 +15,7 @@ pub struct Cpu<'a> {
     sound_timer: u8,
     delay_timer: u8,
     opcode: u16,
-    key: Keypad,
+    pub key: Keypad,
     graphics: Graphics<'a>
 }
 

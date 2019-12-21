@@ -8,6 +8,7 @@ use cpu::Cpu;
 use sdl2::pixels::Color;
 use sdl2::event::Event;
 use sdl2::keyboard::Keycode;
+use sdl2::event::EventType::KeyDown;
 
 use std::time::Duration;
 use std::thread;
@@ -46,55 +47,105 @@ fn main() {
                 Event::Quit {..} | Event::KeyDown { keycode: Some(Keycode::Escape), .. } => {
                     break 'running
                 },
-                Event::MouseMotion {..} => {},
                 Event::KeyDown { keycode: Some(Keycode::Num1), .. } => {
-
+                    cpu.key.set(Keycode::Num1);
                 }
                 Event::KeyDown { keycode: Some(Keycode::Num2), .. } => {
-
+                    cpu.key.set(Keycode::Num2);
                 }
                 Event::KeyDown { keycode: Some(Keycode::Num3), .. } => {
-
+                    cpu.key.set(Keycode::Num3);
                 }
                 Event::KeyDown { keycode: Some(Keycode::Num4), .. } => {
-
+                    cpu.key.set(Keycode::Num4);
                 }
                 Event::KeyDown { keycode: Some(Keycode::Q), .. } => {
-
+                    cpu.key.set(Keycode::Q);
                 }
                 Event::KeyDown { keycode: Some(Keycode::W), .. } => {
-
+                    cpu.key.set(Keycode::W);
                 }
                 Event::KeyDown { keycode: Some(Keycode::E), .. } => {
-
+                    cpu.key.set(Keycode::E);
                 }
                 Event::KeyDown { keycode: Some(Keycode::R), .. } => {
-
+                    cpu.key.set(Keycode::R);
                 }
                 Event::KeyDown { keycode: Some(Keycode::A), .. } => {
-
+                    cpu.key.set(Keycode::A);
                 }
                 Event::KeyDown { keycode: Some(Keycode::S), .. } => {
-
+                    cpu.key.set(Keycode::S);
                 }
                 Event::KeyDown { keycode: Some(Keycode::D), .. } => {
-
+                    cpu.key.set(Keycode::D);
                 }
                 Event::KeyDown { keycode: Some(Keycode::F), .. } => {
-
+                    cpu.key.set(Keycode::F);
                 }
                 Event::KeyDown { keycode: Some(Keycode::Z), .. } => {
-
+                    cpu.key.set(Keycode::Z);
                 }
                 Event::KeyDown { keycode: Some(Keycode::X), .. } => {
-
+                    cpu.key.set(Keycode::X);
                 }
                 Event::KeyDown { keycode: Some(Keycode::C), .. } => {
-
+                    cpu.key.set(Keycode::C);
                 }
                 Event::KeyDown { keycode: Some(Keycode::V), .. } => {
-
+                    cpu.key.set(Keycode::V);
                 }
+
+
+                Event::KeyUp { keycode: Some(Keycode::Num1), .. } => {
+                    cpu.key.reset(Keycode::Num1);
+                }
+                Event::KeyUp { keycode: Some(Keycode::Num2), .. } => {
+                    cpu.key.reset(Keycode::Num2);
+                }
+                Event::KeyUp { keycode: Some(Keycode::Num3), .. } => {
+                    cpu.key.reset(Keycode::Num3);
+                }
+                Event::KeyUp { keycode: Some(Keycode::Num4), .. } => {
+                    cpu.key.reset(Keycode::Num4);
+                }
+                Event::KeyUp { keycode: Some(Keycode::Q), .. } => {
+                    cpu.key.reset(Keycode::Q);
+                }
+                Event::KeyUp { keycode: Some(Keycode::W), .. } => {
+                    cpu.key.reset(Keycode::W);
+                }
+                Event::KeyUp { keycode: Some(Keycode::E), .. } => {
+                    cpu.key.reset(Keycode::E);
+                }
+                Event::KeyUp { keycode: Some(Keycode::R), .. } => {
+                    cpu.key.reset(Keycode::R);
+                }
+                Event::KeyUp { keycode: Some(Keycode::A), .. } => {
+                    cpu.key.reset(Keycode::A);
+                }
+                Event::KeyUp { keycode: Some(Keycode::S), .. } => {
+                    cpu.key.reset(Keycode::S);
+                }
+                Event::KeyUp { keycode: Some(Keycode::D), .. } => {
+                    cpu.key.reset(Keycode::D);
+                }
+                Event::KeyUp { keycode: Some(Keycode::F), .. } => {
+                    cpu.key.reset(Keycode::F);
+                }
+                Event::KeyUp { keycode: Some(Keycode::Z), .. } => {
+                    cpu.key.reset(Keycode::Z);
+                }
+                Event::KeyUp { keycode: Some(Keycode::X), .. } => {
+                    cpu.key.reset(Keycode::X);
+                }
+                Event::KeyUp { keycode: Some(Keycode::C), .. } => {
+                    cpu.key.reset(Keycode::C);
+                }
+                Event::KeyUp { keycode: Some(Keycode::V), .. } => {
+                    cpu.key.reset(Keycode::V);
+                }
+                Event::MouseMotion {..} => {},
                 e => {
                     println!("{:?}", e);
                 }
