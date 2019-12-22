@@ -16,7 +16,7 @@ pub struct Cpu<'a> {
     delay_timer: u8,
     opcode: u16,
     pub key: Keypad,
-    graphics: Graphics<'a>
+    pub graphics: Graphics<'a>
 }
 
 impl<'a> Cpu<'a> {
@@ -53,7 +53,7 @@ impl<'a> Cpu<'a> {
         }
     }
 
-    fn emulate_cycle(&mut self) {
+    pub fn emulate_cycle(&mut self) {
         // fetch
         self.opcode = (self.mem[self.pc as usize] as u16) << 8 | (self.mem[(self.pc as usize) + 1]) as u16;
 

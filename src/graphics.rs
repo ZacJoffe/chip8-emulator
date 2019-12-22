@@ -1,5 +1,10 @@
 use sdl2::surface::Surface;
+use sdl2::video::Window;
 use sdl2::pixels::PixelFormatEnum;
+use sdl2::pixels::Color;
+use sdl2::render::Canvas;
+use sdl2::rect::Rect;
+use sdl2::render::WindowCanvas;
 
 pub struct Graphics<'a> {
     gfx: [[u8; 64]; 32], // represent graphics as a 2d array
@@ -23,6 +28,27 @@ impl<'a> Graphics<'a> {
     pub fn clear(&mut self) {
         self.gfx = [[0; 64]; 32];
         self.draw_flag = true;
+    }
+
+    pub fn draw(&mut self, canvas: &mut WindowCanvas) {
+        if self.draw_flag {
+            for x in 0..64 {
+                for y in 0..32 {
+                    if self.gfx[y][x] == 0 {
+                        // black
+                        canvas.set_draw_color(Color::RGB(0, 0, 0));
+                    } else {
+                        // white
+                        println!{"moss"};
+                        canvas.set_draw_color(Color::RGB(255, 255, 255));
+                    }
+
+                    canvas.fill_rect(Rect::new((x * 10) as i32, (y * 10) as i32, 10, 10));
+                }
+            }
+
+            self.draw_flag = false;
+        }
     }
 
     pub fn update(&mut self, x: usize, y: usize, height: u8, i: u16, mem: [u8; 4096]) -> u8 {
