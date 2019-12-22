@@ -32,21 +32,32 @@ impl<'a> Graphics<'a> {
 
     pub fn draw(&mut self, canvas: &mut WindowCanvas) {
         if self.draw_flag {
+            canvas.clear();
             for x in 0..64 {
                 for y in 0..32 {
+                    /*
                     if self.gfx[y][x] == 0 {
                         // black
                         canvas.set_draw_color(Color::RGB(0, 0, 0));
                     } else {
                         // white
-                        println!{"moss"};
                         canvas.set_draw_color(Color::RGB(255, 255, 255));
                     }
 
                     canvas.fill_rect(Rect::new((x * 10) as i32, (y * 10) as i32, 10, 10));
+                    */
+
+                    if self.gfx[y][x] == 1 {
+                        canvas.set_draw_color(Color::RGB(255, 255, 255));
+                        canvas.fill_rect(Rect::new((x * 10) as i32, (y * 10) as i32, 10, 10)).unwrap();
+                    } else {
+                        canvas.set_draw_color(Color::RGB(0, 0, 0));
+                        canvas.fill_rect(Rect::new((x * 10) as i32, (y * 10) as i32, 10, 10)).unwrap();
+                    }
                 }
             }
 
+            canvas.present();
             self.draw_flag = false;
         }
     }
@@ -62,11 +73,11 @@ impl<'a> Graphics<'a> {
 
             for xline in 0..8 as usize {
                 if pixel & (0x80 >> xline) != 0 {
-                    if self.gfx[y + yline % 32][x + xline % 64] == 1 {
+                    if self.gfx[(y + yline) % 32][(x + xline) % 64] == 1 {
                         v15 = 1;
                     }
 
-                    self.gfx[y + yline % 32][x + xline % 64] ^= 1;
+                    self.gfx[(y + yline) % 32][(x + xline) % 64] ^= 1;
                 }
             }
         }

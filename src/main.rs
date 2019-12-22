@@ -36,14 +36,12 @@ fn main() {
 
     let mut canvas = window.into_canvas().build().unwrap();
 
-    canvas.set_draw_color(Color::RGB(0, 255, 255));
+    // canvas.set_draw_color(Color::RGB(0, 255, 255));
     canvas.clear();
     canvas.present();
     let mut event_pump = sdl_context.event_pump().unwrap();
 
     'running: loop {
-        cpu.emulate_cycle();
-
         for event in event_pump.poll_iter() {
             match event {
                 Event::Quit {..} | Event::KeyDown { keycode: Some(Keycode::Escape), .. } => {
@@ -154,13 +152,12 @@ fn main() {
             }
         }
 
-        canvas.clear();
-
+        cpu.emulate_cycle();
+        // canvas.clear();
         cpu.graphics.draw(&mut canvas);
-
-        canvas.present();
+        // canvas.present();
         // ::std::thread::sleep(Duration::new(0, 1_000_000_000u32 / 30));
-        thread::sleep(Duration::new(0, 1_000_000_000u32 / 30));
+        thread::sleep(Duration::new(0, 1_000_000_000u32 / 60));
     }
 
     println!("Hello, world!");
