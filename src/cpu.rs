@@ -22,7 +22,8 @@ pub struct Cpu<'a> {
 impl<'a> Cpu<'a> {
     pub fn new() -> Cpu<'a> {
         let mut cpu = Cpu {
-            i: 0x200, v: [0; 16],
+            i: 0x200,
+            v: [0; 16],
             pc: 0x200,
             sp: 0,
             stack: [0; 16],
@@ -42,14 +43,15 @@ impl<'a> Cpu<'a> {
     }
 
     pub fn load_game(&mut self, game: Vec<u8>) {
-        let mut data = vec![0; 0x200];
+        // let mut data = vec![0; 0x200];
+        let mut data = Vec::new();
         // load data vector with program
         for byte in game {
             data.push(byte);
         }
 
         for (i, &byte) in data.iter().enumerate() {
-            self.mem[i] = byte;
+            self.mem[i + 0x200] = byte;
         }
     }
 
