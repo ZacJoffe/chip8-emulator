@@ -5,7 +5,7 @@ use rand::Rng;
 use crate::keypad::Keypad;
 use crate::graphics::Graphics;
 
-pub struct Cpu<'a> {
+pub struct Cpu {
     i: u16,
     v: [u8; 16],
     pc: u16,
@@ -16,11 +16,11 @@ pub struct Cpu<'a> {
     delay_timer: u8,
     opcode: u16,
     pub key: Keypad,
-    pub graphics: Graphics<'a>
+    pub graphics: Graphics
 }
 
-impl<'a> Cpu<'a> {
-    pub fn new() -> Cpu<'a> {
+impl Cpu {
+    pub fn new() -> Cpu {
         let mut cpu = Cpu {
             i: 0x200,
             v: [0; 16],
@@ -57,7 +57,7 @@ impl<'a> Cpu<'a> {
 
     pub fn emulate_cycle(&mut self) {
         // fetch
-        self.opcode = (self.mem[self.pc as usize] as u16) << 8 | (self.mem[(self.pc as usize) + 1]) as u16;
+        self.opcode = (self.mem[self.pc as usize] as u16) << 8 | (self.mem[(self.pc as usize) + 1] as u16);
 
         println!("{:x}", self.opcode);
         // match first nibble of opcode for instruction
@@ -95,11 +95,11 @@ impl<'a> Cpu<'a> {
     }
 
     fn instr_0(&mut self) {
-        match self.opcode & 0x000f {
-            0 => {
+        match self.opcode & 0x00ff {
+            0xe0 => {
                 self.graphics.clear();
             }
-            0xe => {
+            0xee => {
                 self.sp -= 1;
                 self.pc = self.stack[self.sp as usize];
             }
@@ -128,8 +128,7 @@ impl<'a> Cpu<'a> {
             self.pc += 2;
         }
     }
-
-    fn instr_4(&mut self) {
+fn instr_4(&mut self) {
         if self.v[self.opcode_x()] != self.opcode_nn() {
             self.pc += 4;
         } else {
@@ -152,7 +151,8 @@ impl<'a> Cpu<'a> {
 
     fn instr_7(&mut self) {
         // self.v[self.opcode_x()] += self.opcode_nn();
-        self.v[self.opcode_x()] = ((self.v[self.opcode_x()] as u16 + self.opcode_nn() as u16) & 0xff) as u8;
+        // self.v[self.opcode_x()] = ((self.v[self.opcode_x()] as u16 + self.opcode_nn() as u16) & 0xff) as u8;
+        self.v[self.opcode_x()] = self.v[self.opcode_x()].wrapping_add(self.opcode_nn());
         self.pc += 2;
     }
 
@@ -172,18 +172,19 @@ impl<'a> Cpu<'a> {
             }
             4 => {
                 // check for overflow/carry
-                /*
                 if self.v[self.opcode_x()] > 0xff - self.v[self.opcode_y()] {
                     self.v[0xf] = 1;
                 } else {
                     self.v[0xf] = 0;
                 }
-                */
+
+                /*
                 if self.v[self.opcode_x()] < self.v[self.opcode_y()] {
                     self.v[0xf] = 1;
                 } else {
                     self.v[0xf] = 0;
                 }
+                */
 
                 // self.v[self.opcode_x()] = ((self.v[self.opcode_x()] as u16 + self.v[self.opcode_y()] as u16) & 0xff) as u8;
                 self.v[self.opcode_x()] = self.v[self.opcode_x()].wrapping_add(self.v[self.opcode_y()]);
@@ -260,7 +261,7 @@ impl<'a> Cpu<'a> {
         let y = self.opcode_y();
         let n = self.opcode_n();
 
-        self.v[15] = self.graphics.update(x, y, n, self.i, self.mem);
+        self.v[15] = self.graphics.update(self.v[x] as usize, self.v[y] as usize, n, self.i, self.mem);
 
         self.pc += 2;
     }
@@ -289,7 +290,7 @@ impl<'a> Cpu<'a> {
     }
 
     fn instr_f(&mut self) {
-        match (self.opcode & 0x00ff) as u8 {
+        match self.opcode & 0x00ff {
             0x07 => {
                 self.v[self.opcode_x()] = self.delay_timer;
             }
@@ -313,26 +314,39 @@ impl<'a> Cpu<'a> {
                 self.sound_timer = self.v[self.opcode_x()];
             }
             0x1e => {
-                self.i += self.v[self.opcode_x()] as u16;
+                if self.v[self.opcode_x()] as u16 + self.i > 0x0fff {
+                    self.v[0xf] = 1;
+                } else {
+                    self.v[0xf] = 0;
+                }
+
+                // self.i += self.v[self.opcode_x()] as u16;
+                self.i = self.i.wrapping_add(self.v[self.opcode_x()] as u16);
             }
             0x29 => {
-                self.i = (self.v[self.opcode_x()] * 5).into();
+                self.i = (self.v[self.opcode_x()] as u16 * 5) + 0x50;
             }
             0x33 => {
-                self.mem[self.i as usize] = self.v[((self.opcode & 0x0f00) >> 8) as usize] / 100;
-                self.mem[(self.i + 1) as usize] = (self.v[((self.opcode & 0x0f00) >> 8) as usize] / 10) % 10;
-                self.mem[(self.i + 2) as usize] = (self.v[((self.opcode & 0x0f00) >> 8) as usize] % 100) % 10;
+                self.mem[self.i as usize] = self.v[self.opcode_x() as usize] / 100;
+                self.mem[(self.i + 1) as usize] = (self.v[self.opcode_x() as usize] / 10) % 10;
+                // self.mem[(self.i + 2) as usize] = (self.v[self.opcode_x() as usize] % 100) % 10;
+                self.mem[(self.i + 2) as usize] = self.v[self.opcode_x() as usize] % 10;
             }
             0x55 => {
                 // reg dump into memory
+                /*
                 for i in 0..(self.opcode_x() + 1) {
+                    self.mem[i + self.i as usize] = self.v[i];
+                }
+                */
+                for i in 0..self.opcode_x() {
                     self.mem[i + self.i as usize] = self.v[i];
                 }
 
                 self.i += self.opcode_x() as u16 + 1;
             }
             0x65 => {
-                // reg dump into memory
+                // dump memory to registers
                 for i in 0..(self.opcode_x() + 1) {
                     self.v[i] = self.mem[i + self.i as usize];
                 }

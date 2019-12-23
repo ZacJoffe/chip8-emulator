@@ -1,26 +1,20 @@
-use sdl2::surface::Surface;
+// use sdl2::surface::Surface;
 use sdl2::video::Window;
 use sdl2::pixels::PixelFormatEnum;
 use sdl2::pixels::Color;
-use sdl2::render::Canvas;
+// use sdl2::render::Canvas;
 use sdl2::rect::Rect;
 use sdl2::render::WindowCanvas;
 
-pub struct Graphics<'a> {
+pub struct Graphics {
     gfx: [[u8; 64]; 32], // represent graphics as a 2d array
-    surface: Surface<'a>,
     draw_flag: bool
 }
 
-impl<'a> Graphics<'a> {
-    pub fn new() -> Graphics<'a> {
+impl Graphics {
+    pub fn new() -> Graphics {
         Graphics {
             gfx: [[0; 64]; 32],
-            surface: Surface::new(
-                640,
-                320,
-                PixelFormatEnum::RGB24
-            ).unwrap(),
             draw_flag: true
         }
     }
@@ -33,9 +27,8 @@ impl<'a> Graphics<'a> {
     pub fn draw(&mut self, canvas: &mut WindowCanvas) {
         if self.draw_flag {
             canvas.clear();
-            for x in 0..64 {
-                for y in 0..32 {
-                    /*
+            for y in 0..32 {
+                for x in 0..64 {
                     if self.gfx[y][x] == 0 {
                         // black
                         canvas.set_draw_color(Color::RGB(0, 0, 0));
@@ -45,15 +38,6 @@ impl<'a> Graphics<'a> {
                     }
 
                     canvas.fill_rect(Rect::new((x * 10) as i32, (y * 10) as i32, 10, 10));
-                    */
-
-                    if self.gfx[y][x] == 1 {
-                        canvas.set_draw_color(Color::RGB(255, 255, 255));
-                        canvas.fill_rect(Rect::new((x * 10) as i32, (y * 10) as i32, 10, 10)).unwrap();
-                    } else {
-                        canvas.set_draw_color(Color::RGB(0, 0, 0));
-                        canvas.fill_rect(Rect::new((x * 10) as i32, (y * 10) as i32, 10, 10)).unwrap();
-                    }
                 }
             }
 
