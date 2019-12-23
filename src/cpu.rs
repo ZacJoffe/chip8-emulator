@@ -96,24 +96,18 @@ impl Cpu {
 
     fn instr_0(&mut self) {
         match self.opcode & 0x00ff {
-            0xe0 => {
-                self.graphics.clear();
-            }
+            0xe0 => self.graphics.clear(),
             0xee => {
                 self.sp -= 1;
                 self.pc = self.stack[self.sp as usize];
             }
-            _ => {
-                self.nop();
-            }
+            _ => self.nop()
         }
 
         self.pc += 2;
     }
 
-    fn instr_1(&mut self) {
-        self.pc = self.opcode_nnn();
-    }
+    fn instr_1(&mut self) { self.pc = self.opcode_nnn(); }
 
     fn instr_2(&mut self) {
         self.stack[self.sp as usize] = self.pc;
@@ -128,7 +122,8 @@ impl Cpu {
             self.pc += 2;
         }
     }
-fn instr_4(&mut self) {
+
+    fn instr_4(&mut self) {
         if self.v[self.opcode_x()] != self.opcode_nn() {
             self.pc += 4;
         } else {
@@ -150,26 +145,16 @@ fn instr_4(&mut self) {
     }
 
     fn instr_7(&mut self) {
-        // self.v[self.opcode_x()] += self.opcode_nn();
-        // self.v[self.opcode_x()] = ((self.v[self.opcode_x()] as u16 + self.opcode_nn() as u16) & 0xff) as u8;
         self.v[self.opcode_x()] = self.v[self.opcode_x()].wrapping_add(self.opcode_nn());
         self.pc += 2;
     }
 
     fn instr_8(&mut self) {
         match self.opcode & 0x000f {
-            0 => {
-                self.v[self.opcode_x()] = self.v[self.opcode_y()];
-            }
-            1 => {
-                self.v[self.opcode_x()] = self.v[self.opcode_x()] | self.v[self.opcode_y()];
-            }
-            2 => {
-                self.v[self.opcode_x()] = self.v[self.opcode_x()] & self.v[self.opcode_y()];
-            }
-            3 => {
-                self.v[self.opcode_x()] = self.v[self.opcode_x()] ^ self.v[self.opcode_y()];
-            }
+            0 => self.v[self.opcode_x()] = self.v[self.opcode_y()],
+            1 => self.v[self.opcode_x()] = self.v[self.opcode_x()] | self.v[self.opcode_y()],
+            2 => self.v[self.opcode_x()] = self.v[self.opcode_x()] & self.v[self.opcode_y()],
+            3 => self.v[self.opcode_x()] = self.v[self.opcode_x()] ^ self.v[self.opcode_y()],
             4 => {
                 // check for overflow/carry
                 if self.v[self.opcode_x()] > 0xff - self.v[self.opcode_y()] {
@@ -178,15 +163,7 @@ fn instr_4(&mut self) {
                     self.v[0xf] = 0;
                 }
 
-                /*
-                if self.v[self.opcode_x()] < self.v[self.opcode_y()] {
-                    self.v[0xf] = 1;
-                } else {
-                    self.v[0xf] = 0;
-                }
-                */
-
-                // self.v[self.opcode_x()] = ((self.v[self.opcode_x()] as u16 + self.v[self.opcode_y()] as u16) & 0xff) as u8;
+                // use wrapping_add method to allow for overflow
                 self.v[self.opcode_x()] = self.v[self.opcode_x()].wrapping_add(self.v[self.opcode_y()]);
             }
             5 => {
@@ -197,8 +174,7 @@ fn instr_4(&mut self) {
                     self.v[0xf] = 1;
                 }
 
-                // self.v[self.opcode_x()] = ((self.v[self.opcode_x()] as u16 - self.v[self.opcode_y()] as u16) & 0xff) as u8;
-                // self.v[self.opcode_x()] -= self.v[self.opcode_y()];
+                // use wrapping_sub method to allow for underflow
                 self.v[self.opcode_x()] = self.v[self.opcode_x()].wrapping_sub(self.v[self.opcode_y()]);
             }
             6 => {
@@ -222,9 +198,7 @@ fn instr_4(&mut self) {
                 self.v[0xf] = self.v[self.opcode_x()] >> 7;
                 self.v[self.opcode_x()] <<= 1;
             }
-            _ => {
-                self.nop();
-            }
+            _ => self.nop()
         }
 
         self.pc += 2;
@@ -243,9 +217,7 @@ fn instr_4(&mut self) {
         self.pc += 2;
     }
 
-    fn instr_b(&mut self) {
-        self.pc = (self.v[0] as u16) + self.opcode_nnn();
-    }
+    fn instr_b(&mut self) { self.pc = (self.v[0] as u16) + self.opcode_nnn(); }
 
     fn instr_c(&mut self) {
         // let random_num: u8 = rand::thread_rng().gen();
@@ -282,18 +254,13 @@ fn instr_4(&mut self) {
                     self.pc += 2;
                 }
             }
-            _ => {
-                self.nop();
-                self.pc += 2;
-            }
+            _ => self.nop()
         }
     }
 
     fn instr_f(&mut self) {
         match self.opcode & 0x00ff {
-            0x07 => {
-                self.v[self.opcode_x()] = self.delay_timer;
-            }
+            0x07 => self.v[self.opcode_x()] = self.delay_timer,
             0x0a => {
                 let mut pressed: bool = false;
                 for i in 0..16 {
@@ -307,12 +274,8 @@ fn instr_4(&mut self) {
                     self.pc -= 2;
                 }
             }
-            0x15 => {
-                self.delay_timer = self.v[self.opcode_x()];
-            }
-            0x18 => {
-                self.sound_timer = self.v[self.opcode_x()];
-            }
+            0x15 => self.delay_timer = self.v[self.opcode_x()],
+            0x18 => self.sound_timer = self.v[self.opcode_x()],
             0x1e => {
                 if self.v[self.opcode_x()] as u16 + self.i > 0x0fff {
                     self.v[0xf] = 1;
@@ -323,22 +286,13 @@ fn instr_4(&mut self) {
                 // self.i += self.v[self.opcode_x()] as u16;
                 self.i = self.i.wrapping_add(self.v[self.opcode_x()] as u16);
             }
-            0x29 => {
-                self.i = (self.v[self.opcode_x()] as u16 * 5) + 0x50;
-            }
+            0x29 => self.i = (self.v[self.opcode_x()] as u16 * 5) + 0x50,
             0x33 => {
                 self.mem[self.i as usize] = self.v[self.opcode_x() as usize] / 100;
                 self.mem[(self.i + 1) as usize] = (self.v[self.opcode_x() as usize] / 10) % 10;
-                // self.mem[(self.i + 2) as usize] = (self.v[self.opcode_x() as usize] % 100) % 10;
-                self.mem[(self.i + 2) as usize] = self.v[self.opcode_x() as usize] % 10;
-            }
+                self.mem[(self.i + 2) as usize] = self.v[self.opcode_x() as usize] % 10; }
             0x55 => {
                 // reg dump into memory
-                /*
-                for i in 0..(self.opcode_x() + 1) {
-                    self.mem[i + self.i as usize] = self.v[i];
-                }
-                */
                 for i in 0..self.opcode_x() {
                     self.mem[i + self.i as usize] = self.v[i];
                 }
@@ -353,40 +307,26 @@ fn instr_4(&mut self) {
 
                 self.i += self.opcode_x() as u16 + 1;
             }
-            _ => {
-                self.nop();
-            }
+            _ => self.nop()
         }
 
         self.pc += 2;
     }
 
     // nop if instruction isn't valid
-    fn nop(&self) {
-        println!("Nop instruction");
-    }
+    fn nop(&self) { println!("Nop instruction"); }
 
     // get x index from opcode
-    fn opcode_x(&self) -> usize {
-        ((self.opcode & 0x0f00) >> 8) as usize
-    }
+    fn opcode_x(&self) -> usize { ((self.opcode & 0x0f00) >> 8) as usize }
 
     // get y index from opcode
-    fn opcode_y(&self) -> usize {
-        ((self.opcode & 0x00f0) >> 4) as usize
-    }
+    fn opcode_y(&self) -> usize { ((self.opcode & 0x00f0) >> 4) as usize }
 
-    fn opcode_n(&self) -> u8 {
-        (self.opcode & 0x000f) as u8
-    }
+    fn opcode_n(&self) -> u8 { (self.opcode & 0x000f) as u8 }
 
-    fn opcode_nn(&self) -> u8 {
-        (self.opcode & 0x00ff) as u8
-    }
+    fn opcode_nn(&self) -> u8 { (self.opcode & 0x00ff) as u8 }
 
-    fn opcode_nnn(&self) -> u16 {
-        (self.opcode & 0x0fff) as u16
-    }
+    fn opcode_nnn(&self) -> u16 { (self.opcode & 0x0fff) as u16 }
 }
 
 const FONTSET: [u8; 80] = [

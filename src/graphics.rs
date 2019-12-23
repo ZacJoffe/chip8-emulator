@@ -1,8 +1,4 @@
-// use sdl2::surface::Surface;
-use sdl2::video::Window;
-use sdl2::pixels::PixelFormatEnum;
 use sdl2::pixels::Color;
-// use sdl2::render::Canvas;
 use sdl2::rect::Rect;
 use sdl2::render::WindowCanvas;
 
@@ -37,7 +33,7 @@ impl Graphics {
                         canvas.set_draw_color(Color::RGB(255, 255, 255));
                     }
 
-                    canvas.fill_rect(Rect::new((x * 10) as i32, (y * 10) as i32, 10, 10));
+                    canvas.fill_rect(Rect::new((x * 10) as i32, (y * 10) as i32, 10, 10)).unwrap();
                 }
             }
 
