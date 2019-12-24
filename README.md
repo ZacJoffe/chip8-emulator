@@ -12,5 +12,6 @@ Simply run:
 ```
 cargo run [romname].c8
 ```
-Replacing `romname` with one of the provided roms.
+Replace `romname` with one of the provided roms in the `roms` folder. If the rom isn't found, the
+emulator will default to loading `pong2.c8`.
 

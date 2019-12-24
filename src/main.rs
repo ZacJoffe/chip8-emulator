@@ -22,8 +22,22 @@ fn main() {
     let mut rom = String::from(&args[1]);
     rom = format!("roms/{}", rom);
 
-    // let mut file = File::open(rom).unwrap();
-    let game: Vec<u8> = fs::read(rom).expect("Couldn't find file!");
+    let game = fs::read(rom);
+    let game = match game {
+        Ok(g) => g,
+        Err(_) => {
+            println!("Couldn't find file! Loading pong2.c8...");
+
+            // attempt to load pong2.c8, panic if not found
+            let pong = fs::read("roms/pong2.c8");
+            match pong {
+                Ok(p) => p,
+                Err(err) => {
+                    panic!("Couldn't find pong2.c8: {}", err);
+                }
+            }
+        }
+    };
 
     cpu.load_game(game);
 
