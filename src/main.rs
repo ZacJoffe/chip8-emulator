@@ -19,7 +19,8 @@ fn main() {
     let mut cpu = Cpu::new();
     let args: Vec<String> = env::args().collect();
 
-    let mut rom = String::from(&args[1]);
+    // if no arg is given, then default to pong2.c8
+    let mut rom = if args.len() < 2 { String::from("pong2.c8") }  else { String::from(&args[1]) };
     rom = format!("roms/{}", rom);
 
     // if the rom isn't fond, then load pong2.c8
