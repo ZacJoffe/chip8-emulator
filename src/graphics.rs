@@ -15,16 +15,20 @@ impl Graphics {
         }
     }
 
+    // reset to original state
     pub fn clear(&mut self) {
         self.gfx = [[0; 64]; 32];
         self.draw_flag = true;
     }
 
+    // draws the graphics to the canvas
     pub fn draw(&mut self, canvas: &mut WindowCanvas) {
+        // only draw if the flag is set
         if self.draw_flag {
             canvas.clear();
             for y in 0..32 {
                 for x in 0..64 {
+                    // if unset then draw black, otherwise white
                     if self.gfx[y][x] == 0 {
                         // black
                         canvas.set_draw_color(Color::RGB(0, 0, 0));
@@ -33,15 +37,19 @@ impl Graphics {
                         canvas.set_draw_color(Color::RGB(255, 255, 255));
                     }
 
+                    // fill rect with the appropriate color from above
                     canvas.fill_rect(Rect::new((x * 10) as i32, (y * 10) as i32, 10, 10)).unwrap();
                 }
             }
 
             canvas.present();
+
+            // reset flag
             self.draw_flag = false;
         }
     }
 
+    // used for opcode 0xDXYN
     pub fn update(&mut self, x: usize, y: usize, height: u8, i: u16, mem: [u8; 4096]) -> u8 {
         let mut pixel: u8;
 

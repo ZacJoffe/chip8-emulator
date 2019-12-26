@@ -13,7 +13,6 @@ impl Keypad {
 
     // press down a key
     pub fn set(&mut self, key: Keycode) {
-        // println!{"Set key: {}", key};
         match key {
             Keycode::Num1 => self.key[1] = true,
             Keycode::Num2 => self.key[2] = true,
@@ -59,5 +58,6 @@ impl Keypad {
         }
     }
 
+    // returns true if the key at the given index is pressed
     pub fn is_pressed(&self, i: usize) -> bool { self.key[i] }
 }

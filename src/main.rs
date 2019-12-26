@@ -22,6 +22,7 @@ fn main() {
     let mut rom = String::from(&args[1]);
     rom = format!("roms/{}", rom);
 
+    // if the rom isn't fond, then load pong2.c8
     let game = fs::read(rom);
     let game = match game {
         Ok(g) => g,
@@ -39,21 +40,24 @@ fn main() {
         }
     };
 
+    // load the game into the cpu's ram
     cpu.load_game(game);
 
+    // initialize sdl2
     let sdl_context = sdl2::init().unwrap();
     let video_subsystem = sdl_context.video().unwrap();
 
     let window = video_subsystem.window("chip8", 640, 320).position_centered().build().unwrap();
 
     let mut canvas = window.into_canvas().build().unwrap();
-
-    // canvas.set_draw_color(Color::RGB(0, 255, 255));
     canvas.clear();
     canvas.present();
+
     let mut event_pump = sdl_context.event_pump().unwrap();
 
+    // game loop, each iteration represents a cycle of the cpu
     'running: loop {
+        // match events
         for event in event_pump.poll_iter() {
             match event {
                 // quit
@@ -94,12 +98,11 @@ fn main() {
                 Event::KeyUp { keycode: Some(Keycode::X), .. } => cpu.key.reset(Keycode::X),
                 Event::KeyUp { keycode: Some(Keycode::C), .. } => cpu.key.reset(Keycode::C),
                 Event::KeyUp { keycode: Some(Keycode::V), .. } => cpu.key.reset(Keycode::V),
-                Event::MouseMotion {..} => {},
-                // e => println!("{:?}", e)
                 _ => {}
             }
         }
 
+        // emulate, draw, and sleep
         cpu.emulate_cycle();
         cpu.graphics.draw(&mut canvas);
         thread::sleep(Duration::new(0, 1_000_000_000u32 / 60)); // 60 Hz

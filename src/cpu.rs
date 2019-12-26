@@ -22,19 +22,20 @@ pub struct Cpu {
 impl Cpu {
     pub fn new() -> Cpu {
         let mut cpu = Cpu {
-            i: 0x200,
+            i: 0x200, // i register
             v: [0; 16],
             pc: 0x200,
             sp: 0,
             stack: [0; 16],
-            mem: [0; 4096],
+            mem: [0; 4096], // ram
             sound_timer: 0,
             delay_timer: 0,
-            opcode: 0,
-            key: Keypad::new(),
-            graphics: Graphics::new()
+            opcode: 0, // currently executing ocode
+            key: Keypad::new(), // input handler
+            graphics: Graphics::new() // graphics handler
         };
 
+        // load fontset into ram from index 0x50
         for i in 0..80 {
             cpu.mem[0x50 + i] = FONTSET[i];
         }
@@ -42,10 +43,11 @@ impl Cpu {
         cpu
     }
 
+    // load game into ram from index 0x200
     pub fn load_game(&mut self, game: Vec<u8>) {
-        // let mut data = vec![0; 0x200];
-        let mut data = Vec::new();
         // load data vector with program
+        let mut data = Vec::new();
+
         for byte in game {
             data.push(byte);
         }
@@ -55,11 +57,15 @@ impl Cpu {
         }
     }
 
+    // one fetch-execute cycle of the cpu
     pub fn emulate_cycle(&mut self) {
         // fetch
         self.opcode = (self.mem[self.pc as usize] as u16) << 8 | (self.mem[(self.pc as usize) + 1] as u16);
 
+        // print opcode to be executed
         println!("{:x}", self.opcode);
+
+        // execute
         // match first nibble of opcode for instruction
         match self.opcode & 0xf000 {
             0x0000 => self.instr_0(),
@@ -94,9 +100,12 @@ impl Cpu {
         }
     }
 
+
     fn instr_0(&mut self) {
         match self.opcode & 0x00ff {
+            // clear graphics
             0xe0 => self.graphics.clear(),
+            // return from subroutine
             0xee => {
                 self.sp -= 1;
                 self.pc = self.stack[self.sp as usize];
@@ -107,14 +116,17 @@ impl Cpu {
         self.pc += 2;
     }
 
+    // jump to address nnn
     fn instr_1(&mut self) { self.pc = self.opcode_nnn(); }
 
+    // call subroutine at nnn
     fn instr_2(&mut self) {
         self.stack[self.sp as usize] = self.pc;
         self.sp += 1;
         self.pc = self.opcode_nnn();
     }
 
+    // skip the next instruction if v[x] == nn
     fn instr_3(&mut self) {
         if self.v[self.opcode_x()] == self.opcode_nn() {
             self.pc += 4;
@@ -123,6 +135,7 @@ impl Cpu {
         }
     }
 
+    // skip the next instruction if v[x] != nn
     fn instr_4(&mut self) {
         if self.v[self.opcode_x()] != self.opcode_nn() {
             self.pc += 4;
@@ -131,6 +144,7 @@ impl Cpu {
         }
     }
 
+    // skip the next instruction if v[x] == v[y]
     fn instr_5(&mut self) {
         if self.v[self.opcode_x()] == self.v[self.opcode_y()] {
             self.pc += 4;
@@ -139,11 +153,13 @@ impl Cpu {
         }
     }
 
+    // set v[x] to nn
     fn instr_6(&mut self) {
         self.v[self.opcode_x()] = self.opcode_nn();
         self.pc += 2;
     }
 
+    // adds nn to v[x]
     fn instr_7(&mut self) {
         self.v[self.opcode_x()] = self.v[self.opcode_x()].wrapping_add(self.opcode_nn());
         self.pc += 2;
@@ -151,11 +167,13 @@ impl Cpu {
 
     fn instr_8(&mut self) {
         match self.opcode & 0x000f {
+            // assignments and bitwise operations on v[x] and v[y]
             0 => self.v[self.opcode_x()] = self.v[self.opcode_y()],
             1 => self.v[self.opcode_x()] = self.v[self.opcode_x()] | self.v[self.opcode_y()],
             2 => self.v[self.opcode_x()] = self.v[self.opcode_x()] & self.v[self.opcode_y()],
             3 => self.v[self.opcode_x()] = self.v[self.opcode_x()] ^ self.v[self.opcode_y()],
             4 => {
+                // add v[y] to v[x]
                 // check for overflow/carry
                 if self.v[self.opcode_x()] > 0xff - self.v[self.opcode_y()] {
                     self.v[0xf] = 1;
@@ -167,6 +185,7 @@ impl Cpu {
                 self.v[self.opcode_x()] = self.v[self.opcode_x()].wrapping_add(self.v[self.opcode_y()]);
             }
             5 => {
+                // sub v[y] from v[x]
                 // check for underflow/borrow
                 if self.v[self.opcode_y()] > self.v[self.opcode_x()] {
                     self.v[0xf] = 0;
@@ -178,11 +197,13 @@ impl Cpu {
                 self.v[self.opcode_x()] = self.v[self.opcode_x()].wrapping_sub(self.v[self.opcode_y()]);
             }
             6 => {
+                // right shift v[x] once
                 // store the lsb of v[x] into v[0xf] before shifting
                 self.v[0xf] = self.v[self.opcode_x()] & 0x1;
                 self.v[self.opcode_x()] >>= 1;
             }
             7 => {
+                // set v[x] to v[y] - v[x]
                 // check for underflow/borrow
                 if self.v[self.opcode_x()] > self.v[self.opcode_y()] {
                     self.v[0xf] = 0;
@@ -194,6 +215,7 @@ impl Cpu {
                 self.v[self.opcode_x()] = self.v[self.opcode_y()].wrapping_sub(self.v[self.opcode_x()]);
             }
             0xe => {
+                // left shift v[x] once
                 // store the msb of v[x] into v[0xf] before shifting
                 self.v[0xf] = self.v[self.opcode_x()] >> 7;
                 self.v[self.opcode_x()] <<= 1;
@@ -204,6 +226,7 @@ impl Cpu {
         self.pc += 2;
     }
 
+    // skip next instruction if v[x] != v[y]
     fn instr_9(&mut self) {
         if self.v[self.opcode_x()] != self.v[self.opcode_y()] {
             self.pc += 4;
@@ -212,13 +235,16 @@ impl Cpu {
         }
     }
 
+    // set i to nnn
     fn instr_a(&mut self) {
         self.i = self.opcode_nnn();
         self.pc += 2;
     }
 
+    // jump to nnn + v[0]
     fn instr_b(&mut self) { self.pc = (self.v[0] as u16) + self.opcode_nnn(); }
 
+    // set v[x] to nn * rand_u8
     fn instr_c(&mut self) {
         // let random_num: u8 = rand::thread_rng().gen();
         let mut rng = rand::thread_rng();
@@ -228,11 +254,13 @@ impl Cpu {
         self.pc += 2;
     }
 
+    // draw sprite at (v[x], v[y])
     fn instr_d(&mut self) {
         let x = self.opcode_x();
         let y = self.opcode_y();
         let n = self.opcode_n();
 
+        // v[15] will be set if pixels were flipped from set to unset
         self.v[15] = self.graphics.update(self.v[x] as usize, self.v[y] as usize, n, self.i, self.mem);
 
         self.pc += 2;
@@ -240,6 +268,7 @@ impl Cpu {
 
     fn instr_e(&mut self) {
         match (self.opcode & 0x00ff) as u8 {
+            // skip next instruction if the key v[x] is pressed
             0x9e => {
                 if self.key.is_pressed(self.v[self.opcode_x()] as usize) {
                     self.pc += 4;
@@ -247,6 +276,7 @@ impl Cpu {
                     self.pc += 2;
                 }
             }
+            // skip next instruction if the key v[x] is not pressed
             0xa1 => {
                 if !self.key.is_pressed(self.v[self.opcode_x()] as usize) {
                     self.pc += 4;
@@ -260,7 +290,9 @@ impl Cpu {
 
     fn instr_f(&mut self) {
         match self.opcode & 0x00ff {
+            // set v[x] to delay_timer
             0x07 => self.v[self.opcode_x()] = self.delay_timer,
+            // wait until a key is pressed, then store in v[x]
             0x0a => {
                 let mut pressed: bool = false;
                 for i in 0..16 {
@@ -274,8 +306,10 @@ impl Cpu {
                     self.pc -= 2;
                 }
             }
+            // set delay/sound timer to v[x]
             0x15 => self.delay_timer = self.v[self.opcode_x()],
             0x18 => self.sound_timer = self.v[self.opcode_x()],
+            // add v[x] to i
             0x1e => {
                 if self.v[self.opcode_x()] as u16 + self.i > 0x0fff {
                     self.v[0xf] = 1;
@@ -283,14 +317,16 @@ impl Cpu {
                     self.v[0xf] = 0;
                 }
 
-                // self.i += self.v[self.opcode_x()] as u16;
                 self.i = self.i.wrapping_add(self.v[self.opcode_x()] as u16);
             }
+            // set i to location of sprite for the chars in v[x]
             0x29 => self.i = (self.v[self.opcode_x()] as u16 * 5) + 0x50,
+            // stores BCD representation of v[x]
             0x33 => {
                 self.mem[self.i as usize] = self.v[self.opcode_x() as usize] / 100;
                 self.mem[(self.i + 1) as usize] = (self.v[self.opcode_x() as usize] / 10) % 10;
                 self.mem[(self.i + 2) as usize] = self.v[self.opcode_x() as usize] % 10; }
+            // stores all v registers into memory
             0x55 => {
                 // reg dump into memory
                 for i in 0..self.opcode_x() {
@@ -299,6 +335,7 @@ impl Cpu {
 
                 self.i += self.opcode_x() as u16 + 1;
             }
+            // fills all v registers from memory
             0x65 => {
                 // dump memory to registers
                 for i in 0..(self.opcode_x() + 1) {
@@ -329,6 +366,7 @@ impl Cpu {
     fn opcode_nnn(&self) -> u16 { (self.opcode & 0x0fff) as u16 }
 }
 
+// hardcoded fontset
 const FONTSET: [u8; 80] = [
     0xF0, 0x90, 0x90, 0x90, 0xF0, // 0
     0x20, 0x60, 0x20, 0x20, 0x70, // 1
